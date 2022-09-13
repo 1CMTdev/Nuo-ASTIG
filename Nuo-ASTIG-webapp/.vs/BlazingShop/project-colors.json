@@ -1,0 +1,16 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "1033382f-d8c2-4a01-bc2d-2e2ce6e531ab": {
+      "ProjectGuid": "1033382f-d8c2-4a01-bc2d-2e2ce6e531ab",
+      "DisplayName": "BlazingShop.Client",
+      "ColorIndex": 0
+    },
+    "fcb248b9-2e21-4775-b90c-04203ad0cf45": {
+      "ProjectGuid": "fcb248b9-2e21-4775-b90c-04203ad0cf45",
+      "DisplayName": "BlazingShop.Server",
+      "ColorIndex": 1
+    }
+  },
+  "NextColorIndex": 2
+}

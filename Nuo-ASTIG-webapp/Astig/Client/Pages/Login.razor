@@ -1,0 +1,100 @@
+﻿@page "/login"
+@inject ILocalStorageService LocalStorage
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ICustomerService CustomerService
+@inject IToastService ToastService
+@inject ISellerService SellerService
+
+
+
+<h3 class="text-center">Login</h3>
+<p class="text-center">If you're interested to sell your 🎨 art. Click <a href="sregistration">HERE</a> to register as a seller!</p>
+<a class="navbar-brand"><img class="img-fluid" src="img/grad1.png" /></a>
+<br />
+<EditForm Model="user" OnSubmit="HandleLogin">
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <InputText id="Email" @bind-Value="user.Username" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <InputText id="password" @bind-Value="wraw" type="password" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary btn-lg">BUYER LOGIN</button>
+    <button type="button" class="btn btn-secondary btn-lg" @onclick="w">SELLER LOGIN</button>
+</EditForm>
+<br />
+<a href="cregistration" class="btn btn-outline-primary">Register as a User!</a>
+
+
+@code { private User user = new User();
+    string wraw;
+    BlazingShop.Shared.Customer customer = new BlazingShop.Shared.Customer();
+    BlazingShop.Shared.Seller seller = new BlazingShop.Shared.Seller();
+
+
+    /*********Seller login***********/
+    private async void w()
+    {
+
+        try
+        {
+            user.Password = Hasher.EncodePasswordToBase64(wraw);
+            seller = await SellerService.LoginSeller(user.Username, user.Password);
+            Console.WriteLine(seller.Phone + "");
+            await AuthStateProvider.GetAuthenticationStateAsync();
+            await LocalStorage.SetItemAsync<string>("username", user.Username);
+
+
+            //identifier
+            await LocalStorage.SetItemAsync<string>("PNP", "S");
+            await LocalStorage.SetItemAsync<string>("credname", seller.Shopname);
+            await LocalStorage.SetItemAsync<string>("credem", seller.Email);
+            await LocalStorage.SetItemAsync<string>("credhash", seller.Password);
+            ToastService.ShowSuccess("Sucess!", "SELLER LOGIN");
+            StateHasChanged();
+            NavigationManager.NavigateTo("", forceLoad: true);
+        }
+        catch
+        {
+            Console.WriteLine("ERROR");
+            ToastService.ShowError("Please try again & double check :)", "LOGIN ERROR!");
+        }
+    }
+
+
+    /*********Customer login***********/
+    private async void HandleLogin()
+    {
+        try
+        {
+            user.Password = Hasher.EncodePasswordToBase64(wraw);
+            customer = await CustomerService.LoginCustomer(user.Username, user.Password);
+            Console.WriteLine(customer.Phone + "");
+            //Console.WriteLine("Log me in!");
+            await LocalStorage.SetItemAsync<string>("username", user.Username);
+            await AuthStateProvider.GetAuthenticationStateAsync();
+
+
+            //identifier
+            await LocalStorage.SetItemAsync<string>("PNP", "C");
+            await LocalStorage.SetItemAsync<string>("credname", customer.Name);
+            await LocalStorage.SetItemAsync<string>("credem", customer.Email);
+            await LocalStorage.SetItemAsync<string>("credhash", customer.Password);
+            await LocalStorage.SetItemAsync<string>("credadd", customer.Avatar + " , " + customer.Address);
+
+
+            ToastService.ShowSuccess("Sucess!", "LOGIN");
+
+            StateHasChanged();
+            NavigationManager.NavigateTo("", forceLoad: true);
+        }
+        catch
+        {
+            Console.WriteLine("ERROR");
+            ToastService.ShowError("Please try again & double check :)", "LOGIN ERROR!");
+        }
+
+
+    } }

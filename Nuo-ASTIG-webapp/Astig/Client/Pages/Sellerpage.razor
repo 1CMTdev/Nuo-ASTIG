@@ -1,0 +1,91 @@
+﻿@page "/sellerpage"
+@inject IProductService ProductService
+@inject IToastService ToastService
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService LocalStorage
+@inject ISellerService SellerService
+@inject IJSRuntime JSRuntime
+
+    <div class="container mt-5">
+        <div class="row d-flex justify-content-center">
+            <div class="col-md-7">
+                <div class="card p-3 py-4">
+                    <div class="text-center"> <img src="@seller.Avatar" width="100" class="rounded-circle"> </div>
+                    <div class="text-center mt-3">
+                        <span class="bg-secondary p-1 px-4 rounded text-white">Verified</span>
+                        <h5 class="mt-2 mb-0">@seller.Name</h5> <span>🛒 @seller.Shopname from @seller.Adresscavite</span>
+                        <div class="px-4 mt-1">
+                            <p class="fonts small">@seller.Bio</p>
+                        </div>
+                        <div class="buttons"> <button class="btn btn-outline-primary px-4" @onclick="chatter">Message</button>  <a href="@seller.IG" class="btn btn-primary px-4 ms-3">📷 Instagram</a> </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr />
+    <h3 class="text-center">Artist's Products</h3>
+    <ul class="list-unstyled">
+        @foreach (var t in xprod.Where(n => n.IsPublic == true))
+        {
+            <li class="media my-3">
+                <div class="media-img-wrapper mr-2">
+                    <a href="/product/@t.Id">
+                        <img class="media-img" src="@t.Image" alt="@t.Title" />
+                    </a>
+                </div>
+                <div class="media-body">
+                    <a href="/product/@t.Id">
+                        <h4 class="mb-0">@t.Title</h4>
+                    </a>
+                    <p>@t.Description</p>
+                </div>
+            </li>
+        }
+    </ul>
+
+
+
+
+    @code {
+        List<Product> xprod = new List<Product>();
+        BlazingShop.Shared.Seller seller = new BlazingShop.Shared.Seller();
+        string shopname;
+
+        protected override async Task OnInitializedAsync()
+        {
+            try
+            {
+                string pnp = await LocalStorage.GetItemAsync<string>("PNP");
+                if (pnp == "S")
+                {
+                    shopname = await LocalStorage.GetItemAsync<string>("credname");
+                }
+                else
+                {
+                    shopname = await LocalStorage.GetItemAsync<string>("shopnamer");
+                }
+
+
+
+
+                seller = await SellerService.Sellerdet(shopname);
+                xprod = await ProductService.GetProductSell(shopname);
+            }
+            catch
+            {
+                Console.WriteLine("GG");
+            }
+        }
+        public async void chatter()
+        {
+
+            await JSRuntime.InvokeVoidAsync("initchat");
+            StateHasChanged();
+
+
+        }
+
+
+    }

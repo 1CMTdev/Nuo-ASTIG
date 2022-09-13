@@ -1,0 +1,75 @@
+﻿@page "/myprofile"
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService LocalStorage
+@inject ICustomerService CustomerService
+@inject IJSRuntime JSRuntime
+<div class="container rounded bg-white mt-5">
+    <div class="row">
+        <div class="col-md-4 border-right">
+            <div class="d-flex flex-column align-items-center text-center p-3 py-5"><img class="rounded-circle mt-5" src="img/user.jpg" width="90"><span class="font-weight-bold">@customers.Name</span><span class="text-black-50">@customers.Email</span><span>LVL. @customers.Lvl</span></div>
+        </div>
+        <div class="col-md-8">
+            <div class="p-3 py-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex flex-row align-items-center back">
+                        <i class="fa fa-long-arrow-left mr-1 mb-1"></i>
+                        <h6>My profile</h6>
+                    </div>
+                    <h6 class="text-right">• Date Joined: @customers.DateCreated</h6>
+                </div>
+                <h6 class="text-left">You can send a profile change request to the admins.</h6>
+                <p class="text-left fonts small">Higher level = More Fun! Click <a href="https://astigph.netlify.app/membership">here</a> for more info!</p>
+                <div class="row mt-2">
+                    <div class="col-md-6"><input type="text" class="form-control" placeholder="Municipality" value="@customers.Avatar"></div>
+                    <div class="col-md-6"><input type="text" class="form-control" value="@customers.Address" placeholder="Address"></div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6"><input type="text" class="form-control" placeholder="ID" value="ID: @customers.Id"></div>
+                    <div class="col-md-6"><input type="text" class="form-control" value="PHONE: @customers.Phone" placeholder="Phone number"></div>
+                </div>
+                <div class="mt-5 text-right"><button class="btn btn-primary profile-button" @onclick="chatterx" type="button">Contact Admin</button></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+@code {
+
+    BlazingShop.Shared.Customer customers = new BlazingShop.Shared.Customer();
+    protected override async Task OnInitializedAsync()
+    {
+
+        string pnp;
+        pnp = await LocalStorage.GetItemAsync<string>("PNP");
+        if (pnp != "C")
+        {
+            NavigationManager.NavigateTo("login");
+
+        }
+        Console.WriteLine("Profile");
+        string e = await LocalStorage.GetItemAsync<string>("credem");
+        string p = await LocalStorage.GetItemAsync<string>("credhash");
+        customers = await CustomerService.LoginCustomer(e, p);
+
+
+
+    }
+
+    public async void chatterx()
+    {
+
+        await JSRuntime.InvokeVoidAsync("initalk");
+        StateHasChanged();
+
+
+    }
+
+
+}

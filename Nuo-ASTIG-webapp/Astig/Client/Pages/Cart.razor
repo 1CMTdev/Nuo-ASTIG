@@ -1,0 +1,143 @@
+﻿@page "/cart"
+@inject ICartService CartService
+@inject ITransactionsService TransactionsService
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService LocalStorage
+@inject ISyncLocalStorageService LocalStoragex
+@inject IToastService ToastService
+
+
+
+@if (!orderPlaced)
+{
+<h3>Shopping Cart</h3>
+                @if (cartItems == null || cartItems.Count <= 0)
+                {
+<span>You have no items in your cart.</span>
+                    <br />
+                                        <br />
+                                                            <br />
+                                                                                <br />
+                                                                                                    <br />
+ }
+                                                                                                else
+                                                                                                {<div>
+                                                                                                        @foreach (var item in cartItems)
+                                                                                                        {
+                                                                                    <div class="item-container">
+                                                                                        <div class="item-image-wrapper"><img src="@item.Image" class="item-image" /></div>
+                                                                                        <div class="item-name">
+                                                                                            <h5><a href="/product/@item.ProductId">@item.ProductTitle</a></h5>
+                                                                                            <span>@item.Quantity x</span><br />
+                                                                                            <button class="btn-delete" @onclick="@(() => DeleteItem(item))">Delete</button>
+                                                                                        </div>
+                                                                                        <div class="item-price">₱ @(item.Price * item.Quantity)</div>
+                                                                                    </div>}
+                                                                                                        <div class="text-right">
+                                                                                                            Order Total (@cartItems.Count): <span class="text-success">₱ @cartItems.Sum(item => item.Price * item.Quantity)</span>
+                                                                                                            <br />
+                                                                                                        </div>
+
+
+
+
+                                                                                                        <div style="text-align: center; margin-top: 10px;">
+                                                                                                            <button class="btn btn-primary btn-lg" @onclick="PlaceOrder">Place Order</button>
+                                                                                                        </div>
+
+
+
+
+
+                                                                                                    </div>} }
+            else
+            {
+<h3>Thank you for your order!</h3>
+                <h4>Here's what you'll get:</h4>
+                                <div>
+                                    @foreach (var item in cartItems)
+                                    {
+                    <div class="item-container">
+                        <div class="item-image-wrapper"><img src="@item.Image" class="item-image" /></div>
+                        <div class="item-name">
+                            <h5><a href="/product/@item.ProductId">@item.ProductTitle</a></h5>
+                            <span>@item.EditionName</span><br />
+                        </div>
+                        <div class="item-price">Php @(item.Price * item.Quantity)</div>
+                    </div>}
+                                    <div class="item-price">
+                                        Total (@cartItems.Count): Php //
+                                    </div>
+                                </div>}
+
+
+
+@code { List<CartItem> cartItems = new List<CartItem>();
+
+    string pnp;
+
+    bool orderPlaced = false;
+
+
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        cartItems = await CartService.GetCartItems();
+        pnp = await LocalStorage.GetItemAsync<string>("PNP");
+        if (pnp != "C")
+        {
+            NavigationManager.NavigateTo("login");
+        }
+
+
+
+
+
+    }
+
+
+
+    private async Task DeleteItem(CartItem item)
+    {
+        await CartService.DeleteItem(item);
+        cartItems = await CartService.GetCartItems();
+
+
+
+    }
+
+
+    private void PlaceOrder()
+    {
+        //working reviewshipping
+        //decimal x, y;
+        //x = cartItems.Sum(item => item.Price * item.Quantity);
+        //y = x * 0.02m;
+        //await LocalStorage.SetItemAsync<decimal>("finalTot", Math.Round(x + y + 100, 2));
+        //await LocalStorage.SetItemAsync<decimal>("finalComi", Math.Round(y, 2));
+        //orderPlaced = true;
+        string nc = null;
+        int tc = 0;
+        foreach (var t in cartItems.Where(n => n.Istan == false))
+        {
+            nc = nc + t.ProductTitle+"\n";
+            tc++;
+        }
+
+        if (nc != null)
+        {
+            if (tc == cartItems.Count)
+            {
+                NavigationManager.NavigateTo("reviewshipping");
+            }
+            else
+            {
+                ToastService.ShowError(nc, "SEPERATE CHECKOUT REQUIRED FOR NON SHIPPABLE PRODUCTS");
+            }
+        }
+        else NavigationManager.NavigateTo("reviewshipping");
+        // await CartService.EmptyCart();
+    } }

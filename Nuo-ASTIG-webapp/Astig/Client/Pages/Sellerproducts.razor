@@ -1,0 +1,105 @@
+﻿@page "/productmanagement"
+@inject IProductService ProductService
+@inject IToastService ToastService
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService LocalStorage
+@inject ISellerService SellerService
+
+
+<h3 class="text-lg-center">PRODUCT MANAGEMENT</h3>
+
+<ul class="list-unstyled">
+    @foreach (var t in xprod)
+    {
+    <li class="media my-3">
+        <div class="media-img-wrapper mr-2">
+            <img class="media-img" src="@t.Image" alt="@t.Title" />
+        </div>
+        <div class="media-body">
+            <a href="/product/@t.Id">
+                <h4 class="mb-0">@t.Title</h4>
+            </a>
+            <button class="btn btn-outline-danger" @onclick="@(() => DeleteItem(t))">@tester(t.IsPublic)</button>
+            <p>Created: @t.DateCreated</p>
+            <p>Sold: @t.Sad</p>
+            <p>Stock: @t.Stock</p>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <button class="btn btn-primary" type="button" @onclick="@(() => stockmane(t))">Update Stock Count:</button>
+                </div>
+                <input type="number" @bind="@x" placeholder="Product count" aria-label="" class="form-control" aria-describedby="basic-addon1">
+            </div>
+            <hr />
+        </div>
+    </li>
+    }
+</ul>
+
+
+@code {
+    int x;
+    public string tester(bool x)
+    {
+        if (x == true){
+            return "Unlist";
+        }
+        else
+            return "Relist";
+    }
+
+
+
+    List<Product> xprod = new List<Product>();
+    string shopname;
+    protected override async Task OnInitializedAsync()
+    {
+
+        string pnp;
+        pnp = await LocalStorage.GetItemAsync<string>("PNP");
+        if (pnp != "S")
+        {
+            NavigationManager.NavigateTo("login");
+        }
+        shopname = await LocalStorage.GetItemAsync<string>("credname");
+        xprod = await ProductService.GetProductSell(shopname);
+
+
+
+
+    }
+
+
+    private async Task stockmane(Product item)
+    {
+        try
+        {
+            await ProductService.Stockupdater(item.Id, x);
+            NavigationManager.NavigateTo("productmanagement", forceLoad: true);
+        }
+        catch
+        {
+            ToastService.ShowError("Check your input", "ERROR");
+        }
+    }
+
+
+
+    private async Task DeleteItem(Product item)
+    {
+        if (item.IsPublic == true)
+        {
+            await ProductService.Listingupdater(item.Id, false);
+            ToastService.ShowError(item.Title, "Product Unlisted!");
+            StateHasChanged();
+        }
+        else
+        {
+            await ProductService.Listingupdater(item.Id, true);
+            ToastService.ShowSuccess(item.Title, "Product Relisted!");
+            StateHasChanged();
+        }
+    }
+
+
+
+}

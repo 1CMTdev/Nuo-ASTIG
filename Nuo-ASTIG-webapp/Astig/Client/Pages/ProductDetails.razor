@@ -1,0 +1,163 @@
+﻿@page "/product/{id:int}"
+@inject IProductService ProductService
+@inject ICartService CartService
+@inject ILocalStorageService LocalStorage
+@inject IToastService ToastService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+<div class="views">
+    <i class="oi oi-eye"></i> @GetViewString()
+</div>
+
+
+
+<div class="media">
+    <div class="media-img-big-wrapper mr-2">
+        <img class="media-img-big" src="@product.Image" alt="@product.Title" />
+    </div>
+    <div class="media-body">
+        <h2 class="mb-0">@product.Title</h2>
+        <h6 class="mb-0">Current Stock: <span class="text-danger"> @product.Stock </span></h6>
+        <a @onclick="w" class="btn btn-outline-secondary">🧑‍🎨 by: @product.Sx</a>
+        <p>@product.Description</p>
+        @if (product.IsDeleted == false)
+{ <p class="mb-0 text-sm-center">This product is <span class="text-danger"> non-tangible</span> and cannot be shipped.</p>
+                    <hr />
+                                    <p class="mb-0 fonts small text-center">Not available for <span class="text-info"> COD</span></p>
+                                                    <p class="mb-0 fonts small text-center">Seperate <span class="text-info"> Checkout</span> is required.</p> <hr />}
+
+
+
+        @if (product.Variants != null && product.Variants.Count > 1)
+        {
+    <div class="form-group">
+        <select class="form-control" @bind="currentEditionId">
+            @foreach (var variant in product.Variants)
+            {
+    <option value="@variant.EditionId">@variant.Edition.Name</option>
+}
+        </select>
+    </div>}
+        @if (GetSelectedVariant() != null)
+        {
+    @if (GetSelectedVariant().OriginalPrice > GetSelectedVariant().Price)
+    {
+    <h6 class="text-muted original-price">Php @GetSelectedVariant().OriginalPrice</h6>}
+                    <h4 class="price">
+                        Php @GetSelectedVariant().Price
+                    </h4>}
+        <EditForm Model="cartItem">
+            <div class="form-group">
+                <InputNumber id="quantity" @bind-Value="cartItem.Quantity" class="form-control" style="width: 70px;" />
+            </div>
+        </EditForm>
+        <button class="btn btn-primary" @onclick="AddToCart"><i class="oi oi-cart"></i>&nbsp;&nbsp;&nbsp;Add to Cart</button>
+    </div>
+
+    <input type="text" id="disq" value="@Id" hidden>
+</div>
+
+<div id="disqus_thread"></div>
+@code { private Product product = new Product();
+    int x;
+    private int currentEditionId = 1;
+
+    private CartItem cartItem = new CartItem { Quantity = 1 };
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        string pnp;
+        pnp = await LocalStorage.GetItemAsync<string>("PNP");
+        if (pnp == null)
+        {
+            NavigationManager.NavigateTo("login");
+        }
+
+        product = await ProductService.GetProduct(Id);
+        if (product.Variants.Count > 0)
+        {
+            currentEditionId = product.Variants[0].EditionId;
+        }
+        x = product.Stock;
+    }
+
+    private ProductVariant GetSelectedVariant()
+    {
+        var variant = product.Variants.FirstOrDefault(v => v.EditionId == currentEditionId);
+        return variant;
+    }
+
+    private async Task AddToCart()
+    {
+        var productVariant = GetSelectedVariant();
+
+        cartItem.EditionId = productVariant.EditionId;
+        cartItem.EditionName = productVariant.Edition.Name;
+        cartItem.Image = product.Image;
+        cartItem.Price = productVariant.Price;
+        cartItem.ProductId = productVariant.ProductId;
+        cartItem.ProductTitle = product.Title;
+        cartItem.Sx = product.Sx;
+        cartItem.Stock = product.Stock;
+        cartItem.Istan = product.IsDeleted;
+        if (product.CategoryId == 1)
+        {
+            cartItem.Category = "Artwork";
+        }
+        else
+        {
+            cartItem.Category = "Art Services";
+        }
+
+
+        if (cartItem.Quantity > x)
+        {
+            ToastService.ShowError("Not Enough Stock", "Sorry");
+        }
+        else
+        {
+            await CartService.AddToCart(cartItem);
+            x-=cartItem.Quantity;
+        }
+
+
+
+    }
+
+    private string GetViewString()
+    {
+        if (product.Views > 1000000)
+            return $"{((float)product.Views / 1000000).ToString("#.##")}M";
+        if (product.Views > 100000)
+            return $"{((float)product.Views / 1000).ToString("#")}K";
+        if (product.Views > 1000)
+            return $"{((float)product.Views / 1000).ToString("#.##")}K";
+
+        return product.Views.ToString("0##");
+    }
+
+
+    private async void w()
+    {
+        await LocalStorage.SetItemAsync<string>("shopnamer", product.Sx);
+        NavigationManager.NavigateTo("sellerpage");
+
+    }
+
+
+    //disq--------------------------------
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("init");
+            StateHasChanged();
+            Console.WriteLine(Id);
+        }
+
+    }//disq--------------------------------
+
+}

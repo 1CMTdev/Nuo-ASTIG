@@ -1,0 +1,119 @@
+﻿@page "/addproduct"
+@inject IProductService ProductService
+@inject IToastService ToastService
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService LocalStorage
+@inject ISellerService SellerService
+
+
+<h3>Add a Product</h3>
+
+
+<EditForm Model="product" OnSubmit="HandleAddProd">
+    <div class="form-group">
+        <label for="pname">Product Name</label>
+        <InputText id="pname" @bind-Value="product.Title" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="pdesc">Description</label>
+        <InputTextArea id="pdesc" @bind-Value="product.Description" type="text" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label for="pstock">Stock Available:</label>
+        <InputNumber id="pstock" @bind-Value="product.Stock" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="price">Price:</label>
+        <InputNumber id="price" @bind-Value="product.Smile" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <img class="media-img" src="@product.Image" />
+        <br />
+        <label for="pImage">or Image URL</label>
+        <InputText id="pImage" @bind-Value="product.Image" type="text" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label for="pCat">Product Category</label>
+        <InputSelect id="startUnit" @bind-Value="Cats" class="form-control" required>
+            {
+
+            <option value="1">Artwork</option>}
+            <option value="2">Art Service</option>}
+        </InputSelect>
+    </div>
+
+
+    <div class="form-group">
+        <label for="pship">Is the artwork tangible/shippable (Paintings/Sculptures)? or pure non-tangible (Logos/Digital Arts/Editing)?</label>
+        <InputSelect id="startUnit" @bind-Value="shippable" class="form-control" required>
+            {
+
+            <option value="1">Tangible</option>}
+            <option value="2">Non-tangible</option>}
+        </InputSelect>
+    </div>
+
+
+
+    <button type="submit" class="btn btn-primary">Sell That !</button>
+</EditForm>
+
+
+
+
+
+@code {
+    BlazingShop.Shared.Product product = new BlazingShop.Shared.Product();
+    int shippable;
+    int Cats; //category choice
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        string pnp;
+        pnp = await LocalStorage.GetItemAsync<string>("PNP");
+        if (pnp != "S")
+        {
+            NavigationManager.NavigateTo("login");
+
+        }
+    }
+
+
+
+
+
+
+    async void HandleAddProd()
+
+    {
+        try
+        {
+            if (shippable == 1)
+            {
+                product.IsDeleted = true;
+            }else if (shippable == 2)
+            {
+                product.IsDeleted = false;
+            }
+
+
+            product.CategoryId = Cats;
+            product.Sx = await LocalStorage.GetItemAsync<string>("credname");
+            await ProductService.AddProd(product);
+            ToastService.ShowSuccess(product.Title, "Product Listing Request Submitted!");
+            Console.WriteLine("Product Added");
+
+        }
+        catch
+        {
+            ToastService.ShowError("Please try again & double check :)", "INPUT ERROR!");
+
+        }
+    }
+
+}

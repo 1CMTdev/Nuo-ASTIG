@@ -1,0 +1,78 @@
+﻿@page "/"
+@page "/{categoryurl}"
+@inject ICategoryService CategoryService;
+@inject IProductService ProductService
+@inject ISyncLocalStorageService LocalStorage
+@inject IStatsService StatsService
+
+
+
+@if (category != null)
+{
+<h1 class="text-lg-center">Welcome to the @category.Name section!</h1>
+                <ProductList />
+ }
+            else
+            {
+<div class="card mb-3">
+    <img class="card-img-top" src="img/card1.jpg" alt="Card image cap">
+    <div class="card-body">
+        <h3 class="card-title">LONG LIVE FILIPINO ARTISTS!</h3>
+        <p class="card-text">Astig Ph is a Web-based Consumer to Consumer Marketplace for Filipino Artworks and Artistic Services.</p>
+        <p class="card-text"><small class="text-muted">Develop by Null Object (DLSU-D)</small></p>
+    </div>
+</div> //card------------------------------------------------- group
+<div class="card-deck">
+    <div class="card">
+        <img class="card-img-top" src="img/deck1.jpg" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">VOUCHERS & DISCOUNTS!</h5>
+            <p class="card-text">Exclusive memberships and vouchers for customers! Have fun shopping and art collenting.</p>
+            <a href="https://astigph.netlify.app/membership" class="btn btn-secondary mx-auto d-block">Membership FAQs</a>
+        </div>
+    </div>
+    <div class="card">
+        <img class="card-img-top" src="img/deck2.jpg" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">ARTS FOR EVERYONE</h5>
+            <p class="card-text">Buy arts from verified local artists.Dedicated and master of their crafts.</p>
+            <a href="cregistration" class="btn btn-secondary mx-auto d-block">Register Customer Account</a>
+        </div>
+    </div>
+    <div class="card">
+        <img class="card-img-top" src="img/deck3.jpg" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">COLOR THE WORLD</h5>
+            <p class="card-text">Start earning with your artistic talent. Expand your horizons! A full creative freedom!</p>
+            <a href="sregistration" class="btn btn-secondary mx-auto d-block">Register Seller Account</a>
+        </div>
+    </div>
+</div> //card------------------------------------------------- group
+<br /><br /> <hr />
+                                <h1>Top-Picks</h1>
+                                 <ProductList />               }
+
+@code
+{ [Parameter]
+    public string CategoryUrl { get; set; }
+
+    private Category category = null;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await ProductService.LoadProducts(CategoryUrl);
+
+        if (CategoryUrl != null)
+        {
+
+            category = CategoryService.Categories.FirstOrDefault(c => c.Url.ToLower().Equals(CategoryUrl.ToLower()));
+        }
+        else
+        {
+            category = null;
+        }
+
+        StateHasChanged();
+        await StatsService.IncrementVisits();
+        await StatsService.GetVisits();
+    } }

@@ -1,0 +1,99 @@
+﻿@page "/mytransactions"
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService LocalStorage
+@inject ICustomerService CustomerService
+@inject ITranschunkService TranschunkService
+@inject ITransactionsService TransactionsService
+@inject IJSRuntime JSRuntime
+
+
+<h3>My Transactions</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Status</th>
+            <th>Order#</th>
+            <th>Date</th>
+            <th>Product</th>
+            <th>₱rice</th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+
+
+        @foreach (var t in xtrans)
+        {
+            <tr>
+                <td>@t.Status</td>
+                <td>@t.Id</td>
+                <td class="fonts small">@t.DateCreated</td>
+                <td class="fonts small">@t.Px</td>
+                <td>@t.Total</td>
+                <td>@t.Sx
+                </td>
+                <td>
+                    <button class="btn btn-secondary" @onclick="chatter">Contact Seller</button>
+                </td>
+            </tr>
+}
+    </tbody>
+</table>
+
+
+<br />
+<br />
+<br />
+
+
+
+
+
+@code {
+
+    List<Transactions> xtrans = new List<Transactions>();
+    List<Transchunk> xchunk = new List<Transchunk>();
+    BlazingShop.Shared.Customer customers = new BlazingShop.Shared.Customer();
+    protected override async Task OnInitializedAsync()
+    {
+
+        string pnp;
+        pnp = await LocalStorage.GetItemAsync<string>("PNP");
+        if (pnp != "C")
+        {
+            NavigationManager.NavigateTo("login");
+        }
+
+
+
+        try
+        {
+            Console.WriteLine("Profile");
+            string e = await LocalStorage.GetItemAsync<string>("credem");
+            string p = await LocalStorage.GetItemAsync<string>("credhash");
+            string cname = await LocalStorage.GetItemAsync<string>("credname");
+            customers = await CustomerService.LoginCustomer(e, p);
+            xchunk = await TranschunkService.GetTranschunk(cname);
+            xtrans = await TransactionsService.GetTransactions(cname);
+        }
+        catch
+        {
+            Console.WriteLine("gg");
+        }
+
+    }
+
+
+    public async void chatter()
+    {
+
+        await JSRuntime.InvokeVoidAsync("initchat");
+        StateHasChanged();
+
+
+    }
+
+}

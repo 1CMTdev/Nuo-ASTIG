@@ -1,0 +1,121 @@
+﻿@page "/complete"
+@inject NavigationManager NavigationManager
+@inject ICartService CartService
+@inject ILocalStorageService LocalStorage
+@inject ITransactionsService TransactionsService
+@inject ITranschunkService TranschunkService
+@inject IToastService ToastService
+@inject IProductService ProductService
+@inject ICustomerService CustomerService
+@inject IVoucherService VoucherService
+
+@if (stopper == true)
+{
+
+    <div class="jumbotron">
+        <h1 class="display-4">THANK YOU FOR YOUR PURCHASE!</h1>
+        <p class="lead">Share the fun of getting ARTS! <span class="text-light">FOLLOW US ON SOCIAL MEDIA!</span> </p>
+        <a class="btn btn-secondary btn-lg" href="mytransactions" role="button">Go to Transactions</a>
+        <hr class="my-4">
+        <center>
+            <iframe src="https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2Fastigecommerce%2Fposts%2F103935922202321&show_text=true&width=500" width="500" height="674" style="border:none;overflow:hidden;background:#ffffff" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+        </center>
+    </div>
+
+}
+else
+{
+    <h1 class="alert-danger">PROCESSING......</h1>
+}
+
+
+
+
+
+@code {
+
+
+    string chunkprod = "";
+    string chunkid = new Random().Next(1000, 9999) + "";
+    List<CartItem> cartItems = new List<CartItem>();
+    BlazingShop.Shared.Transactions transactions = new BlazingShop.Shared.Transactions();
+    BlazingShop.Shared.Transchunk transchunk = new BlazingShop.Shared.Transchunk();
+    bool stopper;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        string pnp;
+        pnp = await LocalStorage.GetItemAsync<string>("PNP");
+        if (pnp != "C")
+        {
+            NavigationManager.NavigateTo("login");
+        }
+
+
+        stopper = await LocalStorage.GetItemAsync<bool>("xxx");
+        cartItems = await CartService.GetCartItems();
+        string e = await LocalStorage.GetItemAsync<string>("credname");
+        string vouch = await LocalStorage.GetItemAsync<string>("voucheroffer");
+
+        try
+        {
+
+            if (stopper == true)
+            {
+
+                //saving per product
+                //each item
+                foreach (var item in cartItems)
+                {
+                    transactions.Id = item.ProductId + "-" + chunkid;
+                    transactions.TransID = chunkid;
+                    transactions.Total = item.Quantity * item.Price;
+                    transactions.Px = "[" + item.Quantity + "] " + item.ProductTitle + "-" + item.Category;
+                    Console.WriteLine(transactions.Px);
+                    transactions.Deliverymode = await LocalStorage.GetItemAsync<string>("chunkmode");
+                    transactions.Cx = e;
+                    transactions.Sx = item.Sx;
+                    chunkprod = "- " + "(" + item.Quantity + ") " + item.ProductTitle + chunkprod;
+                    await TransactionsService.AddTransactions(transactions);
+
+                    //product service
+                    await ProductService.Stockupdater(item.ProductId, item.Stock - item.Quantity);
+                    await ProductService.Soldupdater(item.ProductId, item.Quantity);
+                    await CustomerService.Lev(e);
+                    Console.WriteLine("Complete T");
+                }
+
+
+                if (vouch != null)
+                {
+                    await VoucherService.Offvouch(vouch);
+                }
+
+                ////transchunk
+                transchunk.Id = chunkid;
+                transchunk.Voucher = await LocalStorage.GetItemAsync<string>("chunkvouch");
+                transchunk.Mode = await LocalStorage.GetItemAsync<string>("chunkmode");
+                transchunk.Address = await LocalStorage.GetItemAsync<string>("chunkadd");
+                transchunk.Status = "Processing";
+                transchunk.Cx = e;
+                transchunk.OverallTotal = await LocalStorage.GetItemAsync<decimal>("chunkover");
+                transchunk.WithoutShipping = await LocalStorage.GetItemAsync<decimal>("chunktot");
+                transchunk.Products = chunkprod;
+                await TranschunkService.AddTranschunk(transchunk);
+                Console.WriteLine("Complet TC");
+                await LocalStorage.SetItemAsync<bool>("xxx", false);
+                await CartService.EmptyCart();
+
+            }//else
+        }
+        catch
+        {
+            ToastService.ShowError("Error", "NO TRANSACTIONS ARE MADE");
+        }
+    }//end of initialized
+
+
+
+
+}

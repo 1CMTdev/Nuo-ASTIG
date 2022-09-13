@@ -1,0 +1,120 @@
+﻿@page "/sregistration"
+@inject ISellerService SellerService
+@inject IToastService ToastService
+@inject NavigationManager NavigationManager
+
+
+<h3>SELLER REGISTRATION</h3>
+<EditForm Model="seller" OnSubmit="HandleAddSel">
+    <div class="form-group">
+        <label for="name">Name</label>
+        <InputText id="name" @bind-Value="seller.Name" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Shopname">Shopname</label>
+        <InputText id="Shopname" @bind-Value="seller.Shopname" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Bio">Bio / Shop-Description</label>
+        <InputTextArea id="Bio" @bind-Value="seller.Bio" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Email">Email</label>
+        <InputText id="Email" @bind-Value="seller.Email" type="email" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Password">Password</label>
+        <InputText id="Password" @bind-Value="firstpass" type="Password" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="Password">Re-type Password</label>
+        <InputText id="Password" @bind-Value="raw" type="Password" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Phone">Cellphone #</label>
+        <InputText id="Phone" @bind-Value="seller.Phone" type="tel" class="form-control" required />
+    </div>
+
+
+    <div class="form-group">
+        <label for="cavite">Cavite Municipality</label>
+        <InputSelect id="cavite" @bind-Value="seller.Adresscavite" class="form-control" required>
+            {
+            <option value="" selected disabled hidden>Select Municipality</option>
+            <option value="Alfonso">Alfonso</option>}
+            <option value="Amadeo">Amadeo </option>}
+            <option value="Bacoor">Bacoor</option>}
+            <option value="Carmona">Carmona </option>}
+            <option value="Cavite City">Cavite City</option>}
+            <option value="Dasmariñas">Dasmariñas </option>}
+            <option value="General Emilio Aguinaldo">General Emilio Aguinaldo</option>}
+            <option value="General Mariano Alvarez">General Mariano Alvarez</option>}
+            <option value="General Trias">General Trias</option>}
+            <option value="Imus">Imus</option>}
+            <option value="Indang">Indang</option>}
+            <option value="Magallanes">Magallanes</option>}
+            <option value="Kawit">Kawit</option>}
+            <option value="Maragondon">Maragondon</option>}
+            <option value="Mendez">Mendez</option>}
+            <option value="Naic">Naic</option>}
+            <option value="Noveleta">Noveleta</option>}
+            <option value="Rosario">Rosario</option>}
+            <option value="Silang">Silang</option>}
+            <option value="Tagaytay">Tagaytay</option>}
+            <option value="Tanza">Tanza</option>}
+            <option value="Ternate">Ternate</option>}
+            <option value="Trece Martires">Trece Martires</option>}
+        </InputSelect>
+    </div>
+
+    <div class="form-group">
+        <label for="Address">Address details:</label>
+        <InputText id="Address" @bind-Value="seller.Address" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="Instagram">Instagram Link</label>
+        <InputText id="Instagram" @bind-Value="seller.IG" type="url" class="form-control" />
+    </div>
+
+
+
+
+
+
+    <button type="submit" class="btn btn-primary">Register</button>
+</EditForm>
+
+
+@code {
+
+    string firstpass, raw;
+    BlazingShop.Shared.Seller seller = new BlazingShop.Shared.Seller();
+    async void HandleAddSel()
+    {
+        try
+        {
+
+
+            if (firstpass != raw) { ToastService.ShowError("Password do not match", "INPUT ERROR!"); }
+            else
+            {
+                seller.Id = new Random().Next(1000, 9999);
+                seller.Password = Hasher.EncodePasswordToBase64(raw);
+                await SellerService.AddSeller(seller);
+                Console.WriteLine("seller Registered");
+                ToastService.ShowSuccess("Please wait for Admin approval!", "SELLER ACCOUNT REQUEST SUBMITTED");
+                NavigationManager.NavigateTo("login");
+            }
+        }
+        catch
+        {
+            ToastService.ShowError("Please try again & double check :)", "INPUT ERROR!");
+        }
+    }
+
+}

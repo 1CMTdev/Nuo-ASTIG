@@ -1,0 +1,86 @@
+﻿@inherits LayoutComponentBase
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+
+    <div class="page">
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+
+        <div class="main">
+            <div class="top-row px-4">
+                <TopMenu />
+            </div>
+
+            <div class="content px-4">
+                @Body
+            </div>
+
+            <br />
+            <br />
+            <br />
+
+
+            <!-- Site footer -->
+            <footer class="site-footer">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-6">
+                            <h5>About</h5>
+                            <p class="text-justify">Astig Ph  <i>ART E-COMMERCE </i> is a Web-based Consumer to Consumer Marketplace for Filipino Artworks and Artistic Services. The proponents of the study are Rhacel C. Compuesto, Mark Justine L. Evasco and Christian May P. Toledo of De La Salle University - Dasmariñas taking Bachelor of Science in Information Technology.</p>
+                        </div>
+
+                        <div class="col-xs-6 col-md-3">
+                            <h5>Organizations</h5>
+                            <ul class="footer-links">
+                                <li>• DLSU-D</li>
+                                <li>• DLSU-D VPAPU</li>
+                                <li>• DLSU-D SB</li>
+                                <li>• CSCS-CSD</li>
+
+                            </ul>
+                        </div>
+
+                        <div class="col-xs-6 col-md-3">
+                            <h5>Quick Links</h5>
+                            <ul class="footer-links">
+                                <li>♦ <a href="https://astigph.netlify.app/index.html">Shipping concerns</a></li>
+                                <li>♦ <a href="https://astigph.netlify.app/seller">Seller concerns</a></li>
+                                <li>♦ <a href="https://astigph.netlify.app/return">Return Policy</a></li>
+                                <li>♦ <a href="https://astigph.netlify.app/membership">Membership Policy</a></li>
+                                <li>♦ <a href="https://astigph.netlify.app/order">How to</a></li>
+                                <li>♦ <a href="https://astigph.netlify.app/featured">Blog</a></li>
+                                <li>♦ <a href="https://astigph.netlify.app/developer">Developers : NuO  </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <hr>
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-8 col-sm-6 col-xs-12">
+                            <p class="copyright-text">
+                                Copyright &copy; 2021 All Rights Reserved by
+                                <a href="#">ASTIG E-COMMERCE</a>.
+                            </p>
+                        </div>
+
+                        <div class="col-md-4 col-sm-6 col-xs-12">
+                            <ul class="social-icons">
+                                <li><a class="facebook" href="https://www.facebook.com/astigecommerce"><i class="fa fa-facebook"></i></a></li>
+                                <li><a class="twitter" href="#"><i class="fa fa-instagram"></i></a></li>
+                                <li><a class="dribbble" href="#"><i class="fa fa-google"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </footer>    <!-- Site footer -->
+
+        </div>
+
+
+    </div>
+    <BlazoredToasts />

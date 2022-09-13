@@ -1,0 +1,98 @@
+﻿@page "/cregistration"
+@inject ICustomerService CustomerService
+@inject IToastService ToastService
+@inject NavigationManager NavigationManager
+
+<h3>USER REGISTRATION</h3>
+
+<EditForm Model="customer" OnSubmit="HandleAddCust">
+    <div class="form-group">
+        <label for="name">Name</label>
+        <InputText id="name" @bind-Value="customer.Name" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="email">Email</label>
+        <InputText id="email" @bind-Value="customer.Email" type="email" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="pass">Password</label>
+        <InputText id="pass" @bind-Value="firstpass" type="password" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="pass">Re-type Password</label>
+        <InputText id="pass" @bind-Value="raw" type="password" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="Phone">Cellphone #</label>
+        <InputText id="Phone" @bind-Value="customer.Phone" type="tel" class="form-control" required />
+    </div>
+
+
+    <div class="form-group">
+        <label for="cavite">Cavite Municipality</label>
+        <InputSelect id="cavite" @bind-Value="customer.Avatar" class="form-control" required>
+            {
+            <option value="" selected disabled hidden>Select Municipality</option>
+            <option value="Alfonso">Alfonso</option>}
+            <option value="Amadeo">Amadeo</option>}
+            <option value="Bacoor">Bacoor</option>}
+            <option value="Carmona">Carmona</option>}
+            <option value="Cavite City">Cavite City</option>}
+            <option value="Dasmariñas">Dasmariñas</option>}
+            <option value="General Emilio Aguinaldo">General Emilio Aguinaldo</option>}
+            <option value="General Mariano Alvarez">General Mariano Alvarez</option>}
+            <option value="General Trias">General Trias</option>}
+            <option value="Imus">Imus</option>}
+            <option value="Indang">Indang</option>}
+            <option value="Magallanes">Magallanes Service</option>}
+            <option value="Kawit">Kawit</option>}
+            <option value="Maragondon">Maragondon</option>}
+            <option value="Mendez">Mendez</option>}
+            <option value="Naic">Naic</option>}
+            <option value="Noveleta">Noveleta</option>}
+            <option value="Rosario">Rosario</option>}
+            <option value="Silang">Silang</option>}
+            <option value="Tagaytay">Tagaytay</option>}
+            <option value="Tanza">Tanza</option>}
+            <option value="Ternate">Ternate</option>}
+            <option value="Trece Martires">Trece Martires</option>}
+        </InputSelect>
+    </div>
+
+    <div class="form-group">
+        <label for="address">Address Details</label>
+        <InputText id="address" @bind-Value="customer.Address" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Register</button>
+</EditForm>
+
+
+
+
+
+@code {
+    string firstpass, raw;
+    BlazingShop.Shared.Customer customer = new BlazingShop.Shared.Customer();
+    async void HandleAddCust()
+    {
+        try
+        {
+            if (firstpass != raw) { ToastService.ShowError("Password do not match", "INPUT ERROR!"); }
+            else
+            {
+                customer.Id = new Random().Next(1000, 9999);
+                customer.Password = Hasher.EncodePasswordToBase64(raw);
+                await CustomerService.AddCustomer(customer);
+                Console.WriteLine("Customer Registered");
+                ToastService.ShowSuccess("Long Live Filipino Arts!", "Account Registered!");
+                NavigationManager.NavigateTo("login");
+            }
+        }
+        catch
+        {
+            ToastService.ShowError("Please try again & double check :)", "INPUT ERROR!");
+        }
+
+
+    }
+}
