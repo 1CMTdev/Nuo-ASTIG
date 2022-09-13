@@ -1,7 +1,7 @@
-# Nuo-ASTIG
+# Nuo-ASTIG (Created using ASP.NET BLAZOR)
 A WEB-BASED CONSUMER TO CONSUMER MARKETPLACE FOR FILIPINO ARTWORKS AND ARTISTIC SERVICES 
-</b>
-(Created using ASP.NET BLAZOR)
+
+
 
 The Philippine art scene was always rich and kaleidoscopic. Filipino artists are growing and continuing to evolve. Communities are formed in social-medias, and the digital reach of various artworks, drawings, paintings, or digital art are easily spread publicly. The internet is filled with artworks crafted through hours of skills by Filipino artisans. According to Artwork Archive, “The social media boom means artists no longer have to rely solely on galleries and the art world elite to validate their success. Instead, the masses following your social media accounts are proof enough. [1]” This is in consonance with what J. Vergès (2015) state, the Internet is a new distribution channel of the art market implying immediate and global accessibility with low social and cultural barriers [2]. 
 With this growth in mind, it developed a market opportunity to famous or non-famous artists; to profit from their talent is a big benefit. Commissions and artworks are being sold every day in the Philippine’s internet space. Different artists with diverse medium and art styles are becoming an in-demand trend. For Consumers, finding an editor or sketch artist isn’t hard but searching for the right fit for the job you want and the budget you had may be a little hard. For the Artists, according to initial interview/and survey conducted by the proponents, having a right balance of effort and talent fee seldom happens. A hub or centralization for all of this business to take place is in dire need.  
